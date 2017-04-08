@@ -82,7 +82,7 @@ before_script:
     #- git checkout 2.0;git checkout tags/2.0.2
     # add composer package under test, composer require will trigger update/install
     - composer config repositories.travis_to_test git "$COMPOSER_REPOSITORY_TO_TEST"
-    - composer require $COMPOSER_PACKAGE_TO_TEST:dev-master -vvv
+    - composer require $COMPOSER_PACKAGE_TO_TEST:dev-magento2 -vvv
     # run installation command using evn variables set above
     - php bin/magento setup:install --admin-email "$MAGE2_ADMIN_EMAIL" --admin-firstname "$MAGE2_ADMIN_FIRST_NAME" --admin-lastname "$MAGE2_ADMIN_LAST_NAME" --admin-password "$MAGE2_ADMIN_PASSWORD" --admin-user "$MAGE2_ADMIN_USERNAME" --backend-frontname admin --base-url "$MAGE2_FAKE_URL" --db-host 127.0.0.1 --db-name magento_2_travis --db-user root --session-save files --use-rewrites 1 --use-secure 0 -vvv    
     # test that magento is installed
