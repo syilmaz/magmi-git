@@ -15,7 +15,7 @@ class MassOptionRemapper extends Magmi_UtilityPlugin
     public function getStoreId($sc)
     {
         if (!isset($this->_storeids[$sc])) {
-            $cs = $this->tablename("core_store");
+            $cs = $this->tablename("store");
             $sid = $this->selectOne("SELECT store_id FROM $cs WHERE code=?", array($sc), "store_id");
             $this->_storeids[$sc] = $sid;
         }

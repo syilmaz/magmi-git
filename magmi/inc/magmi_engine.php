@@ -174,7 +174,7 @@ abstract class Magmi_Engine extends DbHelper
         $pil = null;
         // if no family set, return all active plugins
         if ($family == null) {
-            $pil = $this->_activeplugins();
+            $pil = $this->_activeplugins;
         } else {
             // filter active plugins by family
 
@@ -270,7 +270,7 @@ abstract class Magmi_Engine extends DbHelper
         if ($order < 0) {
             $order += count($this->_activeplugins[$family]);
         }
-        
+
         if (is_array($this->_activeplugins) && isset($this->_activeplugins[$family]) && isset($this->_activeplugins[$family][$order]))
             return $this->_activeplugins[$family][$order];
     }
