@@ -3,13 +3,13 @@ env:
     #see also hosts in addons.
     global:
     - MAGE2_FAKE_URL=http://magento-2-travis.dev
-    - MAGE2_ADMIN_EMAIL=syilmaz@spicedcodig.com
+    - MAGE2_ADMIN_EMAIL=samet.yilmaz@example.com
     - MAGE2_ADMIN_FIRST_NAME=Samet
     - MAGE2_ADMIN_LAST_NAME=Yilmaz
     - MAGE2_ADMIN_USERNAME=admin            
     - MAGE2_ADMIN_PASSWORD=ih3artmagento            
     - MAGE2_ADMIN_DBNAME=magento_2_travis
-    - COMPOSER_REPOSITORY_TO_TEST=git@github.com:syilmaz/magmi-git.git
+    - COMPOSER_REPOSITORY_TO_TEST=https://github.com/syilmaz/magmi-git.git
     - COMPOSER_PACKAGE_TO_TEST=dweeves/magmi
 addons:
   hosts:
@@ -18,14 +18,16 @@ addons:
 language: php
 sudo: required
 dist: trusty
-php:
-   - 5.6
-#   - 7.0
-## Cache composer bits
 cache:
   apt: true
   directories:
     - $HOME/.composer/cache
+    - $HOME/.nvm
+    - $HOME/node_modules
+    - $HOME/yarn.lock
+php:
+   - 5.6
+#   - 7.0
 before_script:
     # some useful debugging stuff for travis
     #- curl http://magento-2-travis.dev/index.php
@@ -42,6 +44,7 @@ before_script:
     #    
     # get latest composer 
     - composer selfupdate
+    - if [ -n "$GITHUB_ACCESS_TOKEN" ]; then composer config github-oauth.github.com ${GITHUB_ACCESS_TOKEN}; fi;
     # disable xdebug for perf    
     - echo '' > ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini   
     # add multiverse support to get MySQL 5.6 update apt
@@ -78,8 +81,8 @@ before_script:
     # switch to specific branch in you like
     #- git checkout 2.0;git checkout tags/2.0.2
     # add composer package under test, composer require will trigger update/install
-    - composer config repositories.travis_to_test git $COMPOSER_REPOSITORY_TO_TEST
-    - composer require $COMPOSER_PACKAGE_TO_TEST dev-master          
+    - composer config repositories.travis_to_test "$COMPOSER_REPOSITORY_TO_TEST"
+    - composer require $COMPOSER_PACKAGE_TO_TEST:dev-master -vvv
     # run installation command using evn variables set above
     - php bin/magento setup:install --admin-email "$MAGE2_ADMIN_EMAIL" --admin-firstname "$MAGE2_ADMIN_FIRST_NAME" --admin-lastname "$MAGE2_ADMIN_LAST_NAME" --admin-password "$MAGE2_ADMIN_PASSWORD" --admin-user "$MAGE2_ADMIN_USERNAME" --backend-frontname admin --base-url "$MAGE2_FAKE_URL" --db-host 127.0.0.1 --db-name magento_2_travis --db-user root --session-save files --use-rewrites 1 --use-secure 0 -vvv    
     # test that magento is installed
