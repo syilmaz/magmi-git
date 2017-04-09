@@ -1,0 +1,2 @@
+sku,store,attribute_set,price,qty,name,visibility
+testImportSingleProduct-1,admin,Default,3.99,5,"TestProduct",3
