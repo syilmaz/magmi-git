@@ -100,4 +100,5 @@ before_script:
     - test 'grep -Fx "magento-2-travis.dev" /tmp/output.txt'
 
 script:
+  - phpunit -c tests/unit/phpunit.xml --testsuite unit
   - phpunit -c tests/integration/phpunit.xml --testsuite integration

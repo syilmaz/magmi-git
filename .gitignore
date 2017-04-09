@@ -2,3 +2,4 @@
 /magmi/state/*
 !/magmi/state/dummy.txt
 vendor/
+magmi/tests/*/coverage
