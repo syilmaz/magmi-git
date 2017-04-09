@@ -14,7 +14,7 @@ env:
     - MAGE2_DB_PASS=
     - MAGE2_DB_NAME=magento_2_travis
     - REPOSITORY_TO_TEST=https://github.com/syilmaz/magmi-git.git
-    - BRANCH_TO_TEST=magento2-tests
+    - BRANCH_TO_TEST="$TRAVIS_BRANCH"
 addons:
   hosts:
     # should match MAGE2_FAKE_URL above
