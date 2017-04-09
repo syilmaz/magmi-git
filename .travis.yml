@@ -9,8 +9,12 @@ env:
     - MAGE2_ADMIN_USERNAME=admin            
     - MAGE2_ADMIN_PASSWORD=ih3artmagento            
     - MAGE2_ADMIN_DBNAME=magento_2_travis
-    - COMPOSER_REPOSITORY_TO_TEST=https://github.com/syilmaz/magmi-git.git
-    - COMPOSER_PACKAGE_TO_TEST=dweeves/magmi
+    - MAGE2_DB_HOST=127.0.0.1
+    - MAGE2_DB_USER=root
+    - MAGE2_DB_PASS=
+    - MAGE2_DB_NAME=magento_2_travis
+    - REPOSITORY_TO_TEST=https://github.com/syilmaz/magmi-git.git
+    - BRANCH_TO_TEST=magento2-tests
 addons:
   hosts:
     # should match MAGE2_FAKE_URL above
@@ -75,16 +79,25 @@ before_script:
     - sudo service apache2 restart 
 
     # clone main magento github repository
-    - git clone https://github.com/magento/magento2
+    - git clone --depth=1 https://github.com/magento/magento2
     # install Magento
     - cd magento2  
     # switch to specific branch in you like
     #- git checkout 2.0;git checkout tags/2.0.2
-    # add composer package under test, composer require will trigger update/install
-    - composer config repositories.travis_to_test git "$COMPOSER_REPOSITORY_TO_TEST"
-    - composer require $COMPOSER_PACKAGE_TO_TEST:dev-magento2 -vvv
     # run installation command using evn variables set above
-    - php bin/magento setup:install --admin-email "$MAGE2_ADMIN_EMAIL" --admin-firstname "$MAGE2_ADMIN_FIRST_NAME" --admin-lastname "$MAGE2_ADMIN_LAST_NAME" --admin-password "$MAGE2_ADMIN_PASSWORD" --admin-user "$MAGE2_ADMIN_USERNAME" --backend-frontname admin --base-url "$MAGE2_FAKE_URL" --db-host 127.0.0.1 --db-name magento_2_travis --db-user root --session-save files --use-rewrites 1 --use-secure 0 -vvv    
+    - composer install
+    - php bin/magento setup:install --admin-email "$MAGE2_ADMIN_EMAIL" --admin-firstname "$MAGE2_ADMIN_FIRST_NAME" --admin-lastname "$MAGE2_ADMIN_LAST_NAME" --admin-password "$MAGE2_ADMIN_PASSWORD" --admin-user "$MAGE2_ADMIN_USERNAME" --backend-frontname admin --base-url "$MAGE2_FAKE_URL" --db-host $MAGE2_DB_HOST --db-name $MAGE2_DB_NAME --db-user $MAGE2_DB_USER --session-save files --use-rewrites 1 --use-secure 0 -vvv
+
+    # clone the repo that should be tested
+    - git clone "$REPOSITORY_TO_TEST" pub/magmi
+    - cd pub/magmi
+    - git checkout "$BRANCH_TO_TEST"
+    - composer install
+    - cd magmi
+
     # test that magento is installed
     - curl "$MAGE2_FAKE_URL/index.php" > /tmp/output.txt
-script: test 'grep -Fx "magento-2-travis.dev" /tmp/output.txt'
+    - test 'grep -Fx "magento-2-travis.dev" /tmp/output.txt'
+
+script:
+  - phpunit -c tests/integration/phpunit.xml --testsuite integration

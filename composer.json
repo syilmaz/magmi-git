@@ -10,5 +10,8 @@
     ],
     "bin": [
         "magmi/cli/magmi.cli.php"
-    ]
+    ],
+    "require-dev": {
+        "guzzlehttp/guzzle": "^6.2"
+    }
 }
