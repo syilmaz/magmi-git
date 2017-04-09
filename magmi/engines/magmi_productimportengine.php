@@ -101,18 +101,15 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         return array("datasources", "general", "itemprocessors");
     }
 
-    public function registerAttributeHandler($ahinst, $attdeflist)
+    public function registerAttributeHandler($handler, $definitions)
     {
-        foreach ($attdeflist as $attdef)
+        foreach ($definitions as $definition)
         {
-            $ad = explode(":", $attdef);
-            if (count($ad) != 2)
-            {
-                $this->log("Invalid registration string ($attdef) :" . get_class($ahinst), "warning");
-            }
-            else
-            {
-                $this->_attributehandlers[$attdef] = $ahinst;
+            $arguments = explode(":", $definition);
+            if (count($arguments) != 2) {
+                $this->log("Invalid registration string ($definition) :" . get_class($handler), "warning");
+            } else {
+                $this->_attributehandlers[$definition] = $handler;
             }
         }
     }
