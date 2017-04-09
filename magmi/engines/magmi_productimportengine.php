@@ -119,7 +119,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
 
     /**
      * Override of log to add sku reference
-     * @param $data raw log data
+     * @param string $data raw log data
      * @param string $type log type (may be modified by plugin)
      * @param null $logger logger to use (null = defaul logger)
      */
@@ -127,78 +127,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
     {
         $prefix = ((strpos($type, 'warning') !== false || strpos($type, 'error') !== false) && isset($this->_curitemids['sku'])) ? "SKU " . $this->_curitemids['sku'] . " - " : '';
         parent::log($prefix . $data, $type, $logger);
-    }
-
-    /**
-     * Returns Magento current data for given item
-     * @param array $item : item to get magento data from
-     * @param array $params : item metadata
-     * @param string $cols : columns list to return (if not set, all items column list)
-     * @return array magento data for item
-     */
-    public function getMagentoData($item, $params, $cols = null)
-    {
-        // out data
-        $out = array();
-        // if no specific columns set, use all item keys as base
-        if ($cols == null)
-        {
-            $cols = array_keys($item);
-        }
-        $this->initAttrInfos($cols);
-        // cross with defined attributes
-        $attrkeys = array_intersect($cols, array_keys($this->attrinfo));
-        // Create several maps:
-        // 1 per backend type => 1 request per backend type
-        // 1 to retrieve attribute code from attribute id (avoid a join since we already have the map)
-        $bta = array();
-        $idcodemap = array();
-
-        // Handle atribute retrieval
-
-        foreach ($attrkeys as $k)
-        {
-            $attrdata = $this->attrinfo[$k];
-            $bt = "" . $attrdata["backend_type"];
-            if ($bt != "static")
-            {
-                $attid = $attrdata["attribute_id"];
-                if (!isset($bta[$bt]))
-                {
-                    $bta[$bt] = array();
-                }
-                $bta[$bt][] = $attid;
-                $idcodemap[$attid] = $k;
-            }
-        }
-
-        // Peform SQL "by type"
-        foreach (array_keys($bta) as $bt)
-        {
-            $cpet = $this->tablename("catalog_product_entity_$bt");
-            $storeids = $this->getItemStoreIds($item);
-            $sid = $storeids[0];
-            $sql = "SELECT attribute_id,value FROM $cpet WHERE entity_id=? AND store_id=? AND attribute_id IN (" . $this->arr2values($bta[$bt]) . ")";
-            $tdata = $this->selectAll($sql, array_merge(array($params["product_id"], $sid), $bta[$bt]));
-            foreach ($tdata as $row)
-            {
-                $out[$idcodemap[$row["attribute_id"]]] = $row["value"];
-            }
-            unset($tdata);
-        }
-
-        // Check for qty attributes
-        $scols = array_intersect($cols, $this->getStockCols());
-        $sql = "SELECT " . implode(",", $scols) . " FROM " . $this->tablename("cataloginventory_stock_item") . " WHERE product_id=?";
-        $tdata = $this->selectAll($sql, array($params["product_id"]));
-        if (count($tdata) > 0)
-        {
-            $out = array_merge($out, $tdata[0]);
-        }
-
-        unset($idcodemap);
-        unset($bta);
-        return $out;
     }
 
     /**
